@@ -1,0 +1,78 @@
+set guifont=Consolas:h14
+ 
+" CTRLP opens a new tab
+let g:ctrlp_prompt_mappings = {
+      \ 'AcceptSelection("e")': [],
+      \ 'AcceptSelection("t")': ['<cr>', '<c-m>'],
+      \ }
+ 
+ 
+set background=light
+highlight NonText guibg=#F8F8FF
+ 
+ 
+" RENAME CURRENT FILE (thanks Gary Bernhardt)
+function! RenameFile()
+    let old_name = expand('%')
+    let new_name = input('New file name: ', expand('%'), 'file')
+    if new_name != '' && new_name != old_name
+        exec ':saveas ' . new_name
+        exec ':silent !rm ' . old_name
+        redraw!
+    endif
+endfunction
+map <Leader>n :call RenameFile()<cr>
+ 
+" Delete trailing white space on save, useful for Python and CoffeeScript ;)
+func! DeleteTrailingWS()
+  exe "normal mz"
+  %s/\s\+$//ge
+  exe "normal `z"
+endfunc
+autocmd BufWrite * :call DeleteTrailingWS()
+ 
+" Use relativenumber
+if v:version > 702
+  set number
+  set relativenumber
+  set numberwidth=4
+endif
+ 
+set scrolloff=5
+let g:go_fmt_autosave = 0
+ 
+function! MergeTabs()
+ if tabpagenr() == 1
+    return
+  endif
+  let bufferName = bufname("%")
+  if tabpagenr("$") == tabpagenr()
+    close!
+  else
+    close!
+    tabprev
+  endif
+  split
+  execute "buffer " . bufferName
+endfunction
+ 
+map <Leader>p :set paste<CR>o<esc>"*]p:set nopaste<cr>
+map <Leader>so :so %<cr>
+map <Leader>i mmgg=G`m<CR>
+ 
+vmap P p :call setreg('"', getreg('0')) <CR>
+ 
+" Search for the word under the cursor
+" Normal mode: K
+nmap K :grep "\b<C-R><C-W>\b"<CR>
+nmap <C-W>m :call MergeTabs()<CR>
+ 
+"change tabs
+nmap <Tab> :tabn <CR>
+nmap <S-Tab> :tabp <CR>
+ 
+" Edit another file in the same directory as the current file
+" uses expression to extract path from current file's path
+map <Leader>e :e <C-R>=escape(expand("%:p:h"),' ') . '/'<CR>
+map <Leader>s :split <C-R>=escape(expand("%:p:h"), ' ') . '/'<CR>
+map <Leader>v :vnew <C-R>=escape(expand("%:p:h"), ' ') . '/'<CR>
